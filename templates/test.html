@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>瀏覽器錄音並上傳</title>
+</head>
+<body>
+    <button id="startBtn">開始錄音</button>
+    <button id="stopBtn">停止錄音</button>
+    <audio id="audioPlayback" controls></audio>
+    <script>
+        document.getElementById('startBtn').addEventListener('click', startRecording);
+        document.getElementById('stopBtn').addEventListener('click', stopRecording);
+
+        let mediaRecorder;
+        let audioChunks = [];
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+
+                    mediaRecorder.addEventListener('dataavailable', event => {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener('stop', () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        document.getElementById('audioPlayback').src = audioUrl;
+                        
+                        // 這裡將音訊文件傳送到後端
+                        uploadAudio(audioBlob);
+                    });
+
+                    console.log('錄音已開始');
+                })
+                .catch(error => console.error('錄音啟動失敗:', error));
+        }
+
+        function stopRecording() {
+    if (mediaRecorder) {
+        mediaRecorder.stop();
+        console.log('錄音已停止');
+        stream.getTracks().forEach(track => track.stop());  // 停止所有軌道，關閉麥克風
+    }
+}
+
+        function uploadAudio(blob) {
+            const formData = new FormData();
+            formData.append('audio', blob, 'recording.wav');
+
+            fetch('/upload-audio', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error('錯誤:', error));
+        }
+    </script>
+</body>
+</html>
