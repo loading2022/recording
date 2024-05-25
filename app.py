@@ -14,4 +14,4 @@ def upload_audio():
     return jsonify({'error': '沒有接收到音訊文件'}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=os.getenv("PORT", default=5000), host='0.0.0.0',)
