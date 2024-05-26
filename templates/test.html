@@ -8,6 +8,7 @@
     <button id="startBtn">開始錄音</button>
     <button id="stopBtn">停止錄音</button>
     <audio id="audioPlayback" controls></audio>
+    <p id="transcript">轉寫結果將顯示在這裡</p> <!-- 新增顯示轉寫文本的段落 -->
     <script>
         document.getElementById('startBtn').addEventListener('click', startRecording);
         document.getElementById('stopBtn').addEventListener('click', stopRecording);
@@ -41,12 +42,12 @@
         }
 
         function stopRecording() {
-    if (mediaRecorder) {
-        mediaRecorder.stop();
-        console.log('錄音已停止');
-        stream.getTracks().forEach(track => track.stop());  // 停止所有軌道，關閉麥克風
-    }
-}
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                console.log('錄音已停止');
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());  // 停止所有軌道，關閉麥克風
+            }
+        }
 
         function uploadAudio(blob) {
             const formData = new FormData();
@@ -56,8 +57,15 @@
                 method: 'POST',
                 body: formData,
             })
-            .then(response => response.text())
-            .then(data => console.log(data))
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.transcript) {
+                    document.getElementById('transcript').textContent = '轉寫結果: ' + data.transcript;
+                } else {
+                    document.getElementById('transcript').textContent = '錯誤: ' + data.message;
+                }
+            })
             .catch(error => console.error('錯誤:', error));
         }
     </script>
