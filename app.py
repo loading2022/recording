@@ -29,7 +29,7 @@ def upload_audio():
         text = transcript['text']  # 根據實際的API返回調整取值方式
 
         print(text)
-        return jsonify({'message': '音訊文件上傳成功'})
+        return jsonify({'message': '音頻已處理', 'transcript': text})
     return jsonify({'error': '沒有接收到音訊文件'}), 400
 
 if __name__ == '__main__':
