@@ -11,13 +11,14 @@ def index():
 def upload_audio():
     audio_file = request.files['audio']
     if audio_file:
-        audio_stream = io.BytesIO()
-        audio_file.save(audio_stream)
-        audio_stream.seek(0)
-        
+        audio_bytes = audio_file.read()
+
         # 使用OpenAI的Whisper模型進行語音識別
-        transcript = openai.Audio.transcribe("whisper-1", audio_stream)
-        text = transcript.to_dict()['text']
+        transcript = openai.Audio.transcribe(
+            model="whisper-1",
+            file=audio_bytes  # 直接傳遞bytes數據
+        )
+        text = transcript['text']  # 根據實際的API返回調整取值方式
         
         print(text)
         return jsonify({'message': '音訊文件上傳成功'})
