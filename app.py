@@ -4,9 +4,13 @@ import openai
 
 app = Flask(__name__)
 
+class NamedBytesIO(io.BytesIO):
+    name = 'transcript.wav'
+    
 @app.route('/')
 def index():
     return render_template('test.html')
+    
 @app.route('/upload-audio', methods=['POST'])
 def upload_audio():
     audio_file = request.files['audio']
